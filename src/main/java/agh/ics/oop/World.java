@@ -15,6 +15,7 @@ public class World {
         testV = new Vector2d(1,-1);
         System.out.println(map.wrapPosition(testV));
 //        Application.launch(App.class, args);
+        //działa?
     }
 
 }
