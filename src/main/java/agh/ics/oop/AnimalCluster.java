@@ -15,9 +15,17 @@ public class AnimalCluster {
         addAnimal(animal);
     }
 
+    public boolean isEmpty(){
+        return animals.isEmpty();
+    }
+
+    public Vector2d getPosition(){
+        return position;
+    }
+
     public boolean addAnimal(Animal animal){
         if (!animal.isAt(position)) {
-            System.out.println("To nie jest to samo pole");
+            System.out.println("Chce dodac"+animal.getPosition()+"To nie jest to samo pole!! | AnimalCluster");
             return false;
         }
         animals.add(animal);
@@ -25,11 +33,25 @@ public class AnimalCluster {
     }
 
     public boolean removeAnimal(Animal animal){
-        if (!animal.isAt(position)) {
-            System.out.println("To nie jest to samo pole");
-            return false;
-        }
         animals.remove(animal);
         return true;
+    }
+
+    public ArrayList<Animal> getStrongest(){
+        if (animals.size()==0){
+            System.out.println("Tu powinien byc throw | animal cluster");
+        }
+
+        ArrayList result = new ArrayList<>();
+        int maxEnergy = 0;
+        for (Animal animal : animals) {
+            maxEnergy = Math.max(maxEnergy,animal.getEnergy());
+        }
+        for (Animal animal : animals) {
+            if (animal.getEnergy() == maxEnergy){
+                result.add(animal);
+            }
+        }
+        return result;
     }
 }

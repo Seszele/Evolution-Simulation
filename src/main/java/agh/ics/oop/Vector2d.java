@@ -8,6 +8,7 @@ public class Vector2d {
         this.x = x;
         this.y = y;
     }
+    @Override
     public String toString(){
         return "("+x+","+y+")";
     }
@@ -49,5 +50,9 @@ public class Vector2d {
 
     public Vector2d opposite(){
         return new Vector2d(-1*x,-1*y);
+    }
+
+    public Vector2d copy(){
+        return new Vector2d(x,y);
     }
 }
