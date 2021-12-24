@@ -1,18 +1,24 @@
 package agh.ics.oop;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+
+import static java.lang.Math.floor;
+
 //w mapie wszystkie zwierzaki
 //w mapie hashmapa z clusterami
 //jak sie zwierze rusza to patrzy czy jest cluster a jak nie to robi go
 //na koniec mozna usunąć puste clustery
 public class AnimalCluster {
+    Map map;
     private Vector2d position;
     private ArrayList<Animal> animals = new ArrayList<>();
 
-    public AnimalCluster(Animal animal) {
+    public AnimalCluster(Animal animal,Map map) {
         position = animal.getPosition();
         addAnimal(animal);
+        this.map = map;
     }
 
     public boolean isEmpty(){
@@ -37,6 +43,10 @@ public class AnimalCluster {
         return true;
     }
 
+    public int size() {
+        return animals.size();
+    }
+
     public ArrayList<Animal> getStrongest(){
         if (animals.size()==0){
             System.out.println("Tu powinien byc throw | animal cluster");
@@ -54,4 +64,30 @@ public class AnimalCluster {
         }
         return result;
     }
+
+    public void feed(){
+        int numOfStrongest = getStrongest().size();
+        for (Animal animal : getStrongest()) {
+            animal.addEnergy((int)floor(SimulationData.plantEnergy/numOfStrongest));
+        }
+        map.removePlant(getPosition());
+    }
+
+    public void reproduce(){
+        if (animals.size() < 2){
+            System.out.println("Za malo zwirzat do rozmnazania!!! | AnimalCluster");
+            return;
+        }
+        //sprawdz czy maja conajmniej polowe startEnergy (dodaj startEnergy do Dataa)
+        //wybierasz 2 najsilniejsze (moga miec taka sama energie!) i  wywolujesz na jakims .reproduce()
+        //TODO here
+        animals.sort(Comparator.comparing(Animal::getEnergy));
+        Animal a1 = animals.get(animals.size()-1);
+        Animal a2 = animals.get(animals.size()-2);
+        if (a1.getEnergy() >= (SimulationData.startEnergy/2) && a2.getEnergy()>= (SimulationData.startEnergy/2)){
+            a1.reproduce(a2);
+        }
+    }
+
+
 }

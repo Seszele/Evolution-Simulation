@@ -52,12 +52,12 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
     public void positionChanged(Vector2d oldPosition, Vector2d newPosition, Animal movedAnimal) {
         if (oldPosition.equals(newPosition)){
 //            throw new Exception("");
-            System.out.println("pozycje sa takie same | Map");
+            System.out.println("pozycje sa takie same! | Map");
             return;
         }
         //nie ma clustera, tworze nowy
         if(!animalClusters.containsKey(newPosition)){
-            animalClusters.put(newPosition,new AnimalCluster(movedAnimal));
+            animalClusters.put(newPosition,new AnimalCluster(movedAnimal,this));
         }
         else{
             animalClusters.get(newPosition).addAnimal(movedAnimal);
@@ -74,17 +74,14 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
     }
 
 
-    //createClusters() <- lepiej na zywo chyba
-    //feedClusters() <- a to chyba w jakims engine nie?
-
     //public-temporary for debugging
     public void placePlant(Vector2d pos){
         if (!plants.containsKey(pos)){
             plants.put(pos,new Plant(pos));
         }
     }
-    public LinkedHashMap<Vector2d, AnimalCluster> getClusters(){
-        return animalClusters;
+    public ArrayList<AnimalCluster> getClusters(){
+        return new ArrayList<>(animalClusters.values());
     }
 
     //Return animal clusters where there is a plant growing
@@ -103,12 +100,16 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
 
     public void place(Animal animal) {
         if(!animalClusters.containsKey(animal.getPosition())){
-            animalClusters.put(animal.getPosition(),new AnimalCluster(animal));
+            animalClusters.put(animal.getPosition(),new AnimalCluster(animal,this));
         }
         else{
             animalClusters.get(animal.getPosition()).addAnimal(animal);
         }
         System.out.println("wkladam zwierzaka "+animal.getPosition());
+    }
+
+    public void removePlant(Vector2d position) {
+        plants.remove(position);
     }
 
     //metoda poschanged(oldpos,animal)
