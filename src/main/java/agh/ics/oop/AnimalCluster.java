@@ -2,6 +2,7 @@ package agh.ics.oop;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import static java.lang.Math.floor;
@@ -27,6 +28,11 @@ public class AnimalCluster {
 
     public Vector2d getPosition(){
         return position;
+    }
+
+    //to nie powinno istniec w takiej formie publicznie
+    public ArrayList<Animal> getAnimals(){
+        return animals;
     }
 
     public boolean addAnimal(Animal animal){
@@ -89,5 +95,24 @@ public class AnimalCluster {
         }
     }
 
+//usun martwe, jesli cluster zrobi sie pusty to usuwasz cluster w SimulationEngine juz a nie tu
+    public void cullTheWeaklings() {
+        Iterator<Animal> i = animals.iterator();
+        while (i.hasNext()) {
+            Animal animal = i.next(); // must be called before you can call i.remove()
+            if(animal.getEnergy()<SimulationData.moveEnergy){
+                map.getAnimals().remove(animal);
+                System.out.println("usuwam zwierzaka"+animal+" na clusterze "+position);
+                i.remove();
+            }
+            // Do something
+//            i.remove();
+        }
+    }
 
+    public void moveAnimals() {
+        for (Animal animal : animals) {
+            animal.geneticMove();
+        }
+    }
 }

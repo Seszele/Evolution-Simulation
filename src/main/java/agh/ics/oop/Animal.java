@@ -41,6 +41,8 @@ public class Animal {
 
     //tu mozesz wywoływac zamieniajac dane na MoveDirection
     public void move(MoveDirection direction){
+        System.out.println(this+" idzie z "+position+" "+orientation+" w: "+direction);
+        energy-= SimulationData.moveEnergy;
         switch (direction) {
             case FORWARD -> {
                 moveForward();
@@ -106,5 +108,9 @@ public class Animal {
         this.addEnergy(-(int)(getEnergy()*0.25));
         partner.addEnergy(-(int) (partner.getEnergy()*0.25));
         return child;
+    }
+
+    public void geneticMove() {
+        move(genome.pickDirection());
     }
 }
