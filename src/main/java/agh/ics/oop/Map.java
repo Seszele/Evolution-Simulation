@@ -97,13 +97,13 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
         int x = position.x;
         int y = position.y;
         if (position.x < 0)
-            x = position.x + dimension.x;
+            x = position.x + dimension.x+1;
         if (position.y<0)
-            y = position.y + dimension.y;
-        if (position.x>= dimension.x)
-            x = position.x - dimension.x;
-        if (position.y >= dimension.y)
-            y = position.y - dimension.y;
+            y = position.y + dimension.y+1;
+        if (position.x> dimension.x)
+            x = 0;
+        if (position.y > dimension.y)
+            y =0;
 
         return new Vector2d(x,y);
     }

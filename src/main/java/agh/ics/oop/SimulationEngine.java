@@ -11,26 +11,18 @@ public class SimulationEngine implements Runnable {
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
     private boolean isWrapped;
-    Map map = new Map(7,5,true);
+    Map map;
 
     private ArrayList<IEpochObserver> epochObservers = new ArrayList<>();
-
-
 
     public SimulationEngine(Map map,IEpochObserver observer) {
         epochObservers.add(observer);
         this.map = map;
-//        System.out.println("start");
         //tu musi byc ladnie w petli robienie zwierzakow
         //i inne dane do konstuktora istone chyba
-        Animal animal1 = new Animal(15,new Vector2d(2,0),map);
-        Animal animal2 = new Animal(10,new Vector2d(1,1),map);
-        Animal animal3 = new Animal(44,new Vector2d(3,1),map);
-//        map.placePlant(new Vector2d(1,2));
-//        System.out.println("sim====================sim");
-//        run();
-//        run();
-
+        for (int i = 0; i < SimulationData.startingAnimals; i++) {
+            new Animal(SimulationData.startEnergy,Random.getVector(map.getDimension().x,map.getDimension().y),map);
+        }
     }
 
     @Override
@@ -65,16 +57,8 @@ public class SimulationEngine implements Runnable {
             reproduce();
             growPlants();
             notifyObservers();
-            System.out.println("skonczylem "+isWrapped);
         }
 
-        //dla testu
-//        System.out.println("=======Posdumowanie po ruchach================");
-//        for (Animal animal :
-//                map.getAnimals()) {
-//            System.out.println(animal+" ma "+animal.getEnergy()+" energii na "+animal.getPosition());
-//        }
-//        System.out.println("===============================================");
     }
 
     public void feedClusters(){
