@@ -35,12 +35,6 @@ public class MapGui {
                 grid.add(button,x,map.getDimension().y-y,1,1);
             }
         }
-//        for (int y =  map.getDimension().y; y >= 0; y--) {
-//            for (int x = 0; x <= map.getDimension().x; x++) {
-//                Label label = new Label(x+","+(map.getDimension().y-y));
-//                grid.add(label,x,y,1,1);
-//            }
-//        }
 
         return grid;
     }

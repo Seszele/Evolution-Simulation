@@ -1,50 +1,80 @@
 package agh.ics.oop;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import static java.lang.Math.floor;
 
-public class SimulationEngine {
+public class SimulationEngine implements Runnable {
+    private volatile boolean running = true;
+    private volatile boolean paused = false;
+    private final Object pauseLock = new Object();
+    private boolean isWrapped;
     Map map = new Map(7,5,true);
-    Animal animal1 = new Animal(15,new Vector2d(0,0),map);
-    Animal animal2 = new Animal(10,new Vector2d(1,1),map);
-    Animal animal3 = new Animal(44,new Vector2d(1,1),map);
 
-    public SimulationEngine() {
-        System.out.println("start");
+    private ArrayList<IEpochObserver> epochObservers = new ArrayList<>();
 
+
+
+    public SimulationEngine(Map map,IEpochObserver observer) {
+        epochObservers.add(observer);
+        this.map = map;
+//        System.out.println("start");
+        //tu musi byc ladnie w petli robienie zwierzakow
+        //i inne dane do konstuktora istone chyba
+        Animal animal1 = new Animal(15,new Vector2d(2,0),map);
+        Animal animal2 = new Animal(10,new Vector2d(1,1),map);
+        Animal animal3 = new Animal(44,new Vector2d(3,1),map);
 //        map.placePlant(new Vector2d(1,2));
-        System.out.println("sim====================sim");
-        run();
-        run();
-        run();
-        run();
-        run();
-        run();
-        run();
-        run();
-        run();
-        run();
-
-        //TODO LATER Gui, dzialanie symulacji na threadah w gui (pamietaj o 2 mapach)
+//        System.out.println("sim====================sim");
+//        run();
+//        run();
 
     }
 
+    @Override
     public void run(){
-        removeDeadAnimals();
-        moveAnimals();
-        feedClusters();
-        reproduce();
-        growPlants();
+        while(true){
+            synchronized (pauseLock) {
+                if (!running) { // may have changed while waiting to
+                    // synchronize on pauseLock
+                    break;
+                }
+                if (paused) {
+                    try {
+                        synchronized (pauseLock) {
+                            pauseLock.wait(); // will cause this Thread to block until
+                        }
+                    } catch (InterruptedException ex) {
+                        break;
+                    }
+                    if (!running) { // running might have changed since we paused
+                        break;
+                    }
+                }
+            }
+            try {
+                Thread.sleep(SimulationData.epochInterval);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            removeDeadAnimals();
+            moveAnimals();
+            feedClusters();
+            reproduce();
+            growPlants();
+            notifyObservers();
+            System.out.println("skonczylem "+isWrapped);
+        }
 
         //dla testu
-        System.out.println("=======Posdumowanie po ruchach================");
-        for (Animal animal :
-                map.getAnimals()) {
-            System.out.println(animal+" ma "+animal.getEnergy()+" energii na "+animal.getPosition());
-        }
-        System.out.println("===============================================");
+//        System.out.println("=======Posdumowanie po ruchach================");
+//        for (Animal animal :
+//                map.getAnimals()) {
+//            System.out.println(animal+" ma "+animal.getEnergy()+" energii na "+animal.getPosition());
+//        }
+//        System.out.println("===============================================");
     }
 
     public void feedClusters(){
@@ -74,6 +104,13 @@ public class SimulationEngine {
         growPlant(true);
 
     }
+
+    private void notifyObservers(){
+        for (IEpochObserver epochObserver : epochObservers) {
+            epochObserver.epochConcluded(this);
+        }
+    }
+
     private boolean growPlant(boolean isJunglePlant){
         Set<Vector2d> alreadyDrawn = new HashSet<>();
         for (int y = 0; y <= map.getDimension().y; y++) {
@@ -88,7 +125,7 @@ public class SimulationEngine {
                     if (map.isJungle(draw) && !map.isOccupied(draw)){
                         //place
                         map.placePlant(draw);
-                        System.out.println("klade trawsko w dzungli");
+//                        System.out.println("klade trawsko w dzungli");
                         return true;
                     }
                 }
@@ -96,14 +133,33 @@ public class SimulationEngine {
                     if (!map.isJungle(draw) && !map.isOccupied(draw)){
                         //place
                         map.placePlant(draw);
-                        System.out.println("klade trawsko normalne");
+//                        System.out.println("klade trawsko normalne");
                         return true;
                     }
                 }
             }
         }
-        System.out.println("nie udalo sie postwic trawy!(pewnie jest pelna mapa) | SimulationEngine");
+//        System.out.println("nie udalo sie postwic trawy!(pewnie jest pelna mapa) | SimulationEngine");
         return false;
+    }
+    public void stop() {
+        running = false;
+        // you might also want to interrupt() the Thread that is
+        // running this Runnable, too, or perhaps call:
+        resume();
+        // to unblock
+    }
+
+    public void pause() {
+        // you may want to throw an IllegalStateException if !running
+        paused = true;
+    }
+
+    public void resume() {
+        synchronized (pauseLock) {
+            paused = false;
+            pauseLock.notifyAll(); // Unblocks thread
+        }
     }
 
     public void removeDeadAnimals(){
@@ -113,5 +169,15 @@ public class SimulationEngine {
                 map.removeCluster(cluster);
             }
         }
+    }
+    public boolean isWrapped() {
+        return isWrapped;
+    }
+
+    public Map getMap() {
+        return map;
+    }
+    public boolean isPaused() {
+        return paused;
     }
 }

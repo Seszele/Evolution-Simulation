@@ -1,35 +1,91 @@
 package agh.ics.oop.gui;
 
-import agh.ics.oop.Animal;
-import agh.ics.oop.Map;
-import agh.ics.oop.SimulationData;
-import agh.ics.oop.Vector2d;
+import agh.ics.oop.*;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class App extends Application {
+public class App extends Application implements IEpochObserver {
     private MapGui wrappedMapGui;
+    private SimulationEngine wrappedSimulation;
+    private Thread wrappedSimThread;
+
+    private MapGui solidMapGui;
+    private SimulationEngine solidSimulation;
+    private Thread solidSimThread;
+
     @Override
     public void init() throws Exception {
         super.init();
         System.out.println("init");
-        Map wrappedMap = new Map(SimulationData.width,SimulationData.height,true);
-        Animal animal1 = new Animal(50,new Vector2d(0,0),wrappedMap);
-        wrappedMapGui = new MapGui(wrappedMap);
+        wrappedSimulation = new SimulationEngine( new Map(SimulationData.width,SimulationData.height,true),this);
+        wrappedMapGui = new MapGui(wrappedSimulation.getMap());
+        wrappedSimThread =  new Thread((Runnable) wrappedSimulation);
+
+        solidSimulation = new SimulationEngine(new Map(SimulationData.width,SimulationData.height,false),this);
+        solidMapGui = new MapGui(solidSimulation.getMap());
+        solidSimThread =  new Thread((Runnable) solidSimulation);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        VBox root = new VBox(5);
-        root.getChildren().add(wrappedMapGui.getRoot());
-        wrappedMapGui.redraw();
+        Button leftButton = new Button("Toggle pause");
+        leftButton.setOnAction(event -> toggleSimulation(wrappedSimulation));
+        Button rightButton = new Button("Toggle pause");
+        rightButton.setOnAction(event -> toggleSimulation(solidSimulation));
 
-        Scene scene = new Scene(root,400,400);
+        VBox leftMap = new VBox(5);
+        leftMap.getChildren().addAll(wrappedMapGui.getRoot(),leftButton);
+        VBox rightMap = new VBox(5);
+        rightMap.getChildren().addAll(solidMapGui.getRoot(),rightButton);
+
+        HBox root = new HBox(50);
+        root.getChildren().addAll(leftMap,rightMap);
+
+        Scene scene = new Scene(root,600,400);
+
+        //test
+        wrappedSimThread.start();
+        solidSimThread.start();
+
+
         primaryStage.setScene(scene);
         primaryStage.show();
-        //TODO thready, zatrzymywanie i wznawianie (DLA KAZDEJ MAPY OSOBNO)
+    }
+
+    private void toggleSimulation(SimulationEngine simulationEngine){
+        System.out.println("toggle!");
+        if (simulationEngine.isPaused()){
+            simulationEngine.resume();
+        }
+        else{
+            simulationEngine.pause();
+        }
+    }
+
+    @Override
+    public void epochConcluded(SimulationEngine simulationEngine) {
+        if (simulationEngine == wrappedSimulation){
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    wrappedMapGui.redraw();
+                }
+            });
+        }
+        else{
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    solidMapGui.redraw();
+                }
+            });
+        }
     }
 }
