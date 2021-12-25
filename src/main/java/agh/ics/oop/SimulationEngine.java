@@ -37,6 +37,7 @@ public class SimulationEngine {
         feedClusters();
         reproduce();
         growPlants();
+
         //dla testu
         System.out.println("=======Posdumowanie po ruchach================");
         for (Animal animal :
@@ -74,7 +75,6 @@ public class SimulationEngine {
 
     }
     private boolean growPlant(boolean isJunglePlant){
-//TODO Nieprzetestowane to:
         Set<Vector2d> alreadyDrawn = new HashSet<>();
         for (int y = 0; y <= map.getDimension().y; y++) {
             for (int x = 0; x <= map.getDimension().x; x++) {

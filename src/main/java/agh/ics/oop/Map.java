@@ -188,5 +188,13 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
         animalClusters.remove(cluster.getPosition(),cluster);
     }
 
+    //return null if not occupied
+    public Object getObjectAt(Vector2d position) {
+        if (animalClusters.containsKey(position)){
+            return animalClusters.get(position).getStrongest().get(0);
+        }
+        return plants.get(position);
+    }
+
     //metoda poschanged(oldpos,animal)
 }

@@ -1,11 +1,14 @@
 package agh.ics.oop;
 
+import agh.ics.oop.gui.App;
+import javafx.application.Application;
+
 import javax.lang.model.util.SimpleAnnotationValueVisitor6;
 import java.util.LinkedHashMap;
 
 public class World {
     public static void main(String[] args){
-        SimulationEngine engine = new SimulationEngine();
+//        SimulationEngine engine = new SimulationEngine();
         System.out.println("================");
 //        Genome g1 = new Genome();
 //        Genome g2 = new Genome();
@@ -25,6 +28,7 @@ public class World {
 
 
 //        Application.launch(App.class, args);
+        Application.launch(App.class);
     }
 
 }
