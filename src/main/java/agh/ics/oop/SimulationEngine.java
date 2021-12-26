@@ -8,18 +8,18 @@ public class SimulationEngine implements Runnable {
     private volatile boolean running = true;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
-    private boolean isWrapped;
     Map map;
 
+    private EpochHistorian epochHistorian;
     private ArrayList<IEpochObserver> epochObservers = new ArrayList<>();
     private Integer epochCount = 0;
     private LifeStatistics lifeStatistics = new LifeStatistics();
 
     public SimulationEngine(Map map,IEpochObserver observer) {
-        epochObservers.add(observer);
         this.map = map;
-        //tu musi byc ladnie w petli robienie zwierzakow
-        //i inne dane do konstuktora istone chyba
+        epochHistorian = new EpochHistorian(isWrapped()?"wrappedMap.csv":"solidMap.csv");
+        epochObservers.add(observer);
+        epochObservers.add(epochHistorian);
         for (int i = 0; i < SimulationData.startingAnimals; i++) {
             new Animal(SimulationData.startEnergy,Random.getVector(map.getDimension().x,map.getDimension().y),map);
         }
@@ -90,6 +90,10 @@ public class SimulationEngine implements Runnable {
 
     }
 
+    public void addEpochObserver(IEpochObserver observer){
+        epochObservers.add(observer);
+    }
+
     private void notifyObservers(){
         for (IEpochObserver epochObserver : epochObservers) {
             epochObserver.epochConcluded(this);
@@ -157,7 +161,7 @@ public class SimulationEngine implements Runnable {
         }
     }
     public boolean isWrapped() {
-        return isWrapped;
+        return map.isWrapped();
     }
 
     public Map getMap() {
@@ -206,7 +210,10 @@ public class SimulationEngine implements Runnable {
         }
 
         Genome dominant = genomeHashMap.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
-        System.out.println(dominant);
         return  dominant;
+    }
+
+    public void saveToCSV() {
+        epochHistorian.saveToCSV();
     }
 }

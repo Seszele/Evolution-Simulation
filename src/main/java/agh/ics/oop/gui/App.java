@@ -39,10 +39,10 @@ public class App extends Application implements IEpochObserver {
         System.out.println("init");
 
     }
-//TODO  Zapisywanie do pliku| wybieranie zwierzaka(calosc) | LATER magiczna(guziki w intro i implementacja)|LATER rzucanie wyjatkow zamiast sout
+//TODO  wybieranie zwierzaka(calosc) | LATER magiczna(guziki w intro i implementacja)|LATER rzucanie wyjatkow zamiast sout
     @Override
     public void start(Stage primaryStage) throws Exception {
-        simScene = new Scene(root,1000,400);
+        simScene = new Scene(root,1300,400);
 
         Scene introScene = getIntroScene(primaryStage,simScene);
 
@@ -68,15 +68,35 @@ public class App extends Application implements IEpochObserver {
         solidSimThread =  new Thread((Runnable) solidSimulation);
         rightMapChart = new Chart(solidSimulation,"Solid Simulation Chart");
 
+
+        Button leftSave = new Button("Save to CSV");
+        leftSave.setDisable(true);
+        leftSave.setOnAction(e -> wrappedSimulation.saveToCSV());
+        Button leftShow = new Button("Show");
+        leftShow.setDisable(true);
+//        leftShow.setOnAction(e -> toggleSimulation(wrappedSimulation));
         Button leftButton = new Button("Toggle pause");
-        leftButton.setOnAction(e -> toggleSimulation(wrappedSimulation));
+        leftButton.setOnAction(e -> toggleSimulation(wrappedSimulation,leftSave,leftShow));
+        HBox leftMapButtons = new HBox(1);
+        leftMapButtons.getChildren().addAll(leftButton,leftSave,leftShow);
+
+
+
+        Button rightSave = new Button("Save to CSV");
+        rightSave.setDisable(true);
+        rightSave.setOnAction(e -> solidSimulation.saveToCSV());
+        Button rightShow = new Button("Show");
+        rightShow.setDisable(true);
+//        leftShow.setOnAction(e -> toggleSimulation(wrappedSimulation));
         Button rightButton = new Button("Toggle pause");
-        rightButton.setOnAction(e -> toggleSimulation(solidSimulation));
+        rightButton.setOnAction(e -> toggleSimulation(solidSimulation,rightSave,rightShow));
+        HBox rightMapButtons = new HBox(1);
+        rightMapButtons.getChildren().addAll(rightButton,rightSave,rightShow);
 
         VBox leftMap = new VBox(5);
-        leftMap.getChildren().addAll(wrappedMapGui.getRoot(),leftButton);
+        leftMap.getChildren().addAll(wrappedMapGui.getRoot(),leftMapButtons);
         VBox rightMap = new VBox(5);
-        rightMap.getChildren().addAll(solidMapGui.getRoot(),rightButton);
+        rightMap.getChildren().addAll(solidMapGui.getRoot(),rightMapButtons);
 
         root.getChildren().addAll(leftMapChart.getChart(),rightMapChart.getChart(),leftMap,rightMap);
     }
@@ -154,11 +174,15 @@ public class App extends Application implements IEpochObserver {
         return new Scene(grid,600,400);
     }
 
-    private void toggleSimulation(SimulationEngine simulationEngine){
+    private void toggleSimulation(SimulationEngine simulationEngine,Button saveBTN,Button selectBTN){
         if (simulationEngine.isPaused()){
+            selectBTN.setDisable(true);
+            saveBTN.setDisable(true);
             simulationEngine.resume();
         }
         else{
+            selectBTN.setDisable(false);
+            saveBTN.setDisable(false);
             simulationEngine.pause();
         }
     }
