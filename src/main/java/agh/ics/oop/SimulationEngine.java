@@ -1,8 +1,6 @@
 package agh.ics.oop;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Math.floor;
 
@@ -14,6 +12,8 @@ public class SimulationEngine implements Runnable {
     Map map;
 
     private ArrayList<IEpochObserver> epochObservers = new ArrayList<>();
+    private Integer epochCount = 0;
+    private LifeStatistics lifeStatistics = new LifeStatistics();
 
     public SimulationEngine(Map map,IEpochObserver observer) {
         epochObservers.add(observer);
@@ -56,6 +56,7 @@ public class SimulationEngine implements Runnable {
             feedClusters();
             reproduce();
             growPlants();
+            epochCount++;
             notifyObservers();
         }
 
@@ -148,7 +149,8 @@ public class SimulationEngine implements Runnable {
 
     public void removeDeadAnimals(){
         for (AnimalCluster cluster : map.getClusters()) {
-            cluster.cullTheWeaklings();
+            LifeStatistics clusterStats = cluster.cullTheWeaklings();
+            lifeStatistics = lifeStatistics.add(clusterStats);
             if (cluster.size() == 0){
                 map.removeCluster(cluster);
             }
@@ -163,5 +165,48 @@ public class SimulationEngine implements Runnable {
     }
     public boolean isPaused() {
         return paused;
+    }
+
+    public Integer getAnimalCount() {
+        return map.getAnimals().size();
+    }
+    public Integer getPlantCount(){
+        return map.getPlants().size();
+    }
+    public Double getAverageChildCount(){
+        int sum = 0;
+        for (Animal animal : map.getAnimals()) {
+            sum+=animal.getChildCount();
+        }
+        return (double)sum/map.getAnimals().size();
+    }
+    public Double getAverageEnergy(){
+        int sum = 0;
+        for (Animal animal : map.getAnimals()) {
+            sum+=animal.getEnergy();
+        }
+        return (double)sum/map.getAnimals().size();
+    }
+    public Double getAverageLifespan(){
+        return  lifeStatistics.getAverage();
+    }
+    public Integer getEpochCount() {
+        return epochCount;
+    }
+    public Genome getGenomeDominant(){
+        ArrayList<Genome> genomes = new ArrayList<>();
+        for (Animal animal : map.getAnimals()) {
+            genomes.add(animal.getGenome());
+        }
+        Set<Genome> mySet = new HashSet<>(genomes);
+        LinkedHashMap<Genome,Integer> genomeHashMap = new LinkedHashMap<>();
+
+        for(Genome genome: mySet){
+            genomeHashMap.put(genome,Collections.frequency(genomes,genome));
+        }
+
+        Genome dominant = genomeHashMap.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+        System.out.println(dominant);
+        return  dominant;
     }
 }

@@ -1,11 +1,16 @@
 package agh.ics.oop;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Genome {
     public int[] genes = {0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7};//32
 
     public Genome() {
+        for (int i = 0; i < 32; i++) {
+            genes[i] = Random.getInt(0,7);
+        }
+        Arrays.sort(genes);
     }
 
     public void setGenes(int[] genes){
@@ -53,8 +58,24 @@ public class Genome {
 
     @Override
     public String toString() {
-        return "Genome{" +
-                "genes=" + Arrays.toString(genes) +
-                '}';
+        String resultStr = "";
+        for (Integer i :
+                genes) {
+            resultStr+=i;
+        }
+        return resultStr;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Genome genome = (Genome) o;
+        return Arrays.equals(genes, genome.genes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(genes);
     }
 }

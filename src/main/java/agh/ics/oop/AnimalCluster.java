@@ -96,18 +96,22 @@ public class AnimalCluster {
     }
 
 //usun martwe, jesli cluster zrobi sie pusty to usuwasz cluster w SimulationEngine juz a nie tu
-    public void cullTheWeaklings() {
+    public LifeStatistics cullTheWeaklings() {
+        int daysLived = 0;
+        int died = 0;
         Iterator<Animal> i = animals.iterator();
         while (i.hasNext()) {
             Animal animal = i.next(); // must be called before you can call i.remove()
             if(animal.getEnergy()<SimulationData.moveEnergy){
+                daysLived += animal.getDaysLived();
+                died++;
                 map.getAnimals().remove(animal);
-                System.out.println("usuwam zwierzaka"+animal+" na clusterze "+position);
+//                System.out.println("usuwam zwierzaka"+animal+" na clusterze "+position);
                 i.remove();
             }
-            // Do something
-//            i.remove();
         }
+
+        return new LifeStatistics(daysLived,died);
     }
 
     public void moveAnimals() {

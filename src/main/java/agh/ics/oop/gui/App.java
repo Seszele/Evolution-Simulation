@@ -22,12 +22,16 @@ public class App extends Application implements IEpochObserver {
     private MapGui wrappedMapGui;
     private SimulationEngine wrappedSimulation;
     private Thread wrappedSimThread;
+    private Chart leftMapChart;
+
     private Scene simScene;
     private HBox root = new HBox(50);
 
     private MapGui solidMapGui;
     private SimulationEngine solidSimulation;
     private Thread solidSimThread;
+    private Chart rightMapChart;
+
 
     @Override
     public void init() throws Exception {
@@ -35,10 +39,10 @@ public class App extends Application implements IEpochObserver {
         System.out.println("init");
 
     }
-//TODO *statystyki* | zmiana koloru od energii | LATER rzucanie wyjatkow zamiast sout
+//TODO  Zapisywanie do pliku| wybieranie zwierzaka(calosc) | LATER magiczna(guziki w intro i implementacja)|LATER rzucanie wyjatkow zamiast sout
     @Override
     public void start(Stage primaryStage) throws Exception {
-        simScene = new Scene(root,600,400);
+        simScene = new Scene(root,1000,400);
 
         Scene introScene = getIntroScene(primaryStage,simScene);
 
@@ -46,14 +50,23 @@ public class App extends Application implements IEpochObserver {
         primaryStage.show();
     }
 
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        solidSimulation.stop();
+        wrappedSimulation.stop();
+    }
+
     private void setMaps(){
         wrappedSimulation = new SimulationEngine( new Map(SimulationData.width,SimulationData.height,true),this);
         wrappedMapGui = new MapGui(wrappedSimulation.getMap());
         wrappedSimThread =  new Thread((Runnable) wrappedSimulation);
+        leftMapChart = new Chart(wrappedSimulation,"Wrapped Simulation Chart");
 
         solidSimulation = new SimulationEngine(new Map(SimulationData.width,SimulationData.height,false),this);
         solidMapGui = new MapGui(solidSimulation.getMap());
         solidSimThread =  new Thread((Runnable) solidSimulation);
+        rightMapChart = new Chart(solidSimulation,"Solid Simulation Chart");
 
         Button leftButton = new Button("Toggle pause");
         leftButton.setOnAction(e -> toggleSimulation(wrappedSimulation));
@@ -65,7 +78,7 @@ public class App extends Application implements IEpochObserver {
         VBox rightMap = new VBox(5);
         rightMap.getChildren().addAll(solidMapGui.getRoot(),rightButton);
 
-        root.getChildren().addAll(leftMap,rightMap);
+        root.getChildren().addAll(leftMapChart.getChart(),rightMapChart.getChart(),leftMap,rightMap);
     }
 
     private Scene getIntroScene(Stage primaryStage,Scene simScene) {
@@ -157,6 +170,7 @@ public class App extends Application implements IEpochObserver {
                 @Override
                 public void run() {
                     wrappedMapGui.redraw();
+                    leftMapChart.redraw();
                 }
             });
         }
@@ -165,6 +179,7 @@ public class App extends Application implements IEpochObserver {
                 @Override
                 public void run() {
                     solidMapGui.redraw();
+                    rightMapChart.redraw();
                 }
             });
         }

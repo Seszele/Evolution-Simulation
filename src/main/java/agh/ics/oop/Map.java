@@ -109,7 +109,7 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
     }
 
     public boolean posOutOfBounds(Vector2d position){
-        return (position.x < 0 || position.y<0 || position.x >= dimension.x || position.y >= dimension.y);
+        return (position.x < 0 || position.y<0 || position.x > dimension.x || position.y > dimension.y);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
         }
         //aktualizacja animals hashmapy jesli bedzie potrzebna
 
-        System.out.println("ruszyl sie z "+oldPosition+" do "+newPosition);
+//        System.out.println("ruszyl sie z "+oldPosition+" do "+newPosition);
     }
 
 
@@ -177,7 +177,6 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
         else{
             animalClusters.get(animal.getPosition()).addAnimal(animal);
         }
-        System.out.println("wkladam zwierzaka "+animal.getPosition());
     }
 
     public void removePlant(Vector2d position) {
@@ -194,6 +193,10 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
             return animalClusters.get(position).getStrongest().get(0);
         }
         return plants.get(position);
+    }
+
+    public ArrayList<Plant> getPlants() {
+        return new ArrayList<>(plants.values());
     }
 
     //metoda poschanged(oldpos,animal)

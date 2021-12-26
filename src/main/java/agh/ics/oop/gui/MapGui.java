@@ -1,9 +1,6 @@
 package agh.ics.oop.gui;
 
-import agh.ics.oop.Animal;
-import agh.ics.oop.Map;
-import agh.ics.oop.Plant;
-import agh.ics.oop.Vector2d;
+import agh.ics.oop.*;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -11,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.paint.Color;
 
 public class MapGui {
     private Map map;
@@ -57,19 +55,22 @@ public class MapGui {
             for (int x = 0; x <= map.getDimension().x; x++) {
                 Button button = getButtonAt(x,map.getDimension().y-y);
                 Object mapObject = map.getObjectAt(new Vector2d(x,y));
-                String backgroundColour = "ffffff";
+//                String backgroundColour = "ffffff";
+                Color backgroundColour = Color.HONEYDEW;
                 String borderColour = "000000";
                 if(mapObject instanceof Animal){
-                    backgroundColour = "fff000";//tu trzeba jakos obliczac kolor
+                    backgroundColour = Color.YELLOW;
+                    backgroundColour = backgroundColour.interpolate(Color.BROWN, (double)SimulationData.moveEnergy/((Animal) mapObject).getEnergy());
                 }
                 else if(mapObject instanceof Plant){
-                    backgroundColour = "00ff00";
+//                    backgroundColour = "00ff00";
+                    backgroundColour = Color.LIME;
                 }
 
                 if (map.isJungle(new Vector2d(x,y))){
-                    borderColour = "ffa500";
+                    borderColour = "FFA500";
                 }
-                button.setStyle(String.format("-fx-background-color: #%s;-fx-border-color: #%s; -fx-border-width: 1px;", backgroundColour, borderColour));
+                button.setStyle(String.format("-fx-background-color: rgb(%s,%s,%s);-fx-border-color: #%s; -fx-border-width: 1px;", (int)(backgroundColour.getRed()*255),(int)(backgroundColour.getGreen()*255),(int)(backgroundColour.getBlue()*255), borderColour));
             }
         }
     }
