@@ -1,5 +1,7 @@
 package agh.ics.oop;
 
+import agh.ics.oop.gui.AnimalFollower;
+
 import java.util.ArrayList;
 
 public class Animal {
@@ -9,8 +11,24 @@ public class Animal {
     private Genome genome = new Genome();
     private Map map;
     private ArrayList<IPositionObserver> positionObservers = new ArrayList<>();
+
+    public ArrayList<Animal> getChildList() {
+        return childList;
+    }
+
     private ArrayList<Animal> childList = new ArrayList<>();
+    AnimalFollower follower;
     private int daysLived =0;
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public void setAlive(boolean alive) {
+        isAlive = alive;
+    }
+
+    private boolean isAlive = true;
 
     //POZYCJA MA BYC LOSOWA DOCELOWO
     public Animal(int baseEnergy, Vector2d position,Map map) {
@@ -113,6 +131,9 @@ public class Animal {
     }
 
     public void addChildToList(Animal child) {
+        if (follower!=null){
+            follower.noticeAChild(child);
+        }
         childList.add(child);
     }
     public Integer getChildCount(){
@@ -125,5 +146,13 @@ public class Animal {
 
     public int getDaysLived() {
         return daysLived;
+    }
+
+    public void removeFollower() {
+        follower = null;
+    }
+
+    public void setFollower(AnimalFollower animalFollower) {
+        follower = animalFollower;
     }
 }

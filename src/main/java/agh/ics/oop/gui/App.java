@@ -59,12 +59,12 @@ public class App extends Application implements IEpochObserver {
 
     private void setMaps(){
         wrappedSimulation = new SimulationEngine( new Map(SimulationData.width,SimulationData.height,true),this);
-        wrappedMapGui = new MapGui(wrappedSimulation.getMap());
+        wrappedMapGui = new MapGui(wrappedSimulation);
         wrappedSimThread =  new Thread((Runnable) wrappedSimulation);
         leftMapChart = new Chart(wrappedSimulation,"Wrapped Simulation Chart");
 
         solidSimulation = new SimulationEngine(new Map(SimulationData.width,SimulationData.height,false),this);
-        solidMapGui = new MapGui(solidSimulation.getMap());
+        solidMapGui = new MapGui(solidSimulation);
         solidSimThread =  new Thread((Runnable) solidSimulation);
         rightMapChart = new Chart(solidSimulation,"Solid Simulation Chart");
 
@@ -74,7 +74,7 @@ public class App extends Application implements IEpochObserver {
         leftSave.setOnAction(e -> wrappedSimulation.saveToCSV());
         Button leftShow = new Button("Show");
         leftShow.setDisable(true);
-//        leftShow.setOnAction(e -> toggleSimulation(wrappedSimulation));
+        leftShow.setOnAction(e -> wrappedMapGui.highlightPositions(wrappedSimulation.getPosOfDominants()));
         Button leftButton = new Button("Toggle pause");
         leftButton.setOnAction(e -> toggleSimulation(wrappedSimulation,leftSave,leftShow));
         HBox leftMapButtons = new HBox(1);
@@ -87,16 +87,16 @@ public class App extends Application implements IEpochObserver {
         rightSave.setOnAction(e -> solidSimulation.saveToCSV());
         Button rightShow = new Button("Show");
         rightShow.setDisable(true);
-//        leftShow.setOnAction(e -> toggleSimulation(wrappedSimulation));
+        rightShow.setOnAction(e -> solidMapGui.highlightPositions(solidSimulation.getPosOfDominants()));
         Button rightButton = new Button("Toggle pause");
         rightButton.setOnAction(e -> toggleSimulation(solidSimulation,rightSave,rightShow));
         HBox rightMapButtons = new HBox(1);
         rightMapButtons.getChildren().addAll(rightButton,rightSave,rightShow);
 
         VBox leftMap = new VBox(5);
-        leftMap.getChildren().addAll(wrappedMapGui.getRoot(),leftMapButtons);
+        leftMap.getChildren().addAll(wrappedMapGui.getRoot(),leftMapButtons,wrappedMapGui.getFollowerGUI());
         VBox rightMap = new VBox(5);
-        rightMap.getChildren().addAll(solidMapGui.getRoot(),rightMapButtons);
+        rightMap.getChildren().addAll(solidMapGui.getRoot(),rightMapButtons,solidMapGui.getFollowerGUI());
 
         root.getChildren().addAll(leftMapChart.getChart(),rightMapChart.getChart(),leftMap,rightMap);
     }

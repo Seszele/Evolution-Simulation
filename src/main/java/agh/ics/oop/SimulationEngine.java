@@ -213,6 +213,17 @@ public class SimulationEngine implements Runnable {
         return  dominant;
     }
 
+    public ArrayList<Vector2d> getPosOfDominants(){
+        Genome dominant = getGenomeDominant();
+        ArrayList<Vector2d> result = new ArrayList<>();
+        for (Animal animal : map.getAnimals()) {
+            if (animal.getGenome().equals(dominant)){
+                result.add(animal.getPosition());
+            }
+        }
+        return result;
+    }
+
     public void saveToCSV() {
         epochHistorian.saveToCSV();
     }

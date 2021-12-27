@@ -84,9 +84,6 @@ public class AnimalCluster {
             System.out.println("Za malo zwirzat do rozmnazania!!! | AnimalCluster");
             return;
         }
-        //sprawdz czy maja conajmniej polowe startEnergy (dodaj startEnergy do Dataa)
-        //wybierasz 2 najsilniejsze (moga miec taka sama energie!) i  wywolujesz na jakims .reproduce()
-        //TODO here
         animals.sort(Comparator.comparing(Animal::getEnergy));
         Animal a1 = animals.get(animals.size()-1);
         Animal a2 = animals.get(animals.size()-2);
@@ -105,6 +102,7 @@ public class AnimalCluster {
             if(animal.getEnergy()<SimulationData.moveEnergy){
                 daysLived += animal.getDaysLived();
                 died++;
+                animal.setAlive(false); // :(
                 map.getAnimals().remove(animal);
 //                System.out.println("usuwam zwierzaka"+animal+" na clusterze "+position);
                 i.remove();
@@ -114,9 +112,4 @@ public class AnimalCluster {
         return new LifeStatistics(daysLived,died);
     }
 
-    public void moveAnimals() {
-        for (Animal animal : animals) {
-            animal.geneticMove();
-        }
-    }
 }
