@@ -53,6 +53,11 @@ public class SimulationEngine implements Runnable {
                 e.printStackTrace();
             }
             removeDeadAnimals();
+            if (getAnimalCount()==0){
+                System.out.println("KONIEC | SIMENGINE");
+                stop();
+                break;
+            }
             moveAnimals();
             feedClusters();
             reproduce();

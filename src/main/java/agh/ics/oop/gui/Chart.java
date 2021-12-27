@@ -54,7 +54,12 @@ public class Chart {
 
     int z =  5;
     public void redraw(){
-        dominantLabel.setText("Dominant genome: "+simulation.getGenomeDominant());
+        try{
+            dominantLabel.setText("Dominant genome: "+simulation.getGenomeDominant());
+        }
+        catch (Exception e){
+            return;
+        }
 
         numOfAnimalsSeries.getData().add(new XYChart.Data<>(String.valueOf(simulation.getEpochCount()),simulation.getAnimalCount()));
         numOfPlantsSeries.getData().add(new XYChart.Data<>(String.valueOf(simulation.getEpochCount()),simulation.getPlantCount()));

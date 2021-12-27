@@ -40,7 +40,7 @@ public class App extends Application implements IEpochObserver {
         System.out.println("init");
 
     }
-//TODO magiczna(guziki w intro i implementacja) | LATER gradle | zrobienie todo w mapgui |LATER rzucanie wyjatkow zamiast sout |SOONtm posprzatanie i gotowe
+//TODO    |LATER rzucanie wyjatkow zamiast sout |SOONtm posprzatanie i gotowe | LATER gradle
     @Override
     public void start(Stage primaryStage) throws Exception {
         simScene = new Scene(root,1300,400);
@@ -61,7 +61,6 @@ public class App extends Application implements IEpochObserver {
     }
 
     private void setMaps(){
-        //TODO tutaj magical musi zalezec od checkboxa
         wrappedSimulation = new SimulationEngine( new Map(SimulationData.width,SimulationData.height,true,SimulationData.isWrappedMagical),this);
         wrappedMapGui = new MapGui(wrappedSimulation);
         wrappedSimThread =  new Thread((Runnable) wrappedSimulation);

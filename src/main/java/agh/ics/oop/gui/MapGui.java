@@ -19,14 +19,17 @@ public class MapGui {
     private int magicCooldown = 0;
     private int lastMana = 0;
     private int notificationDuration = 2000;//[ms]
-    //animalfollower ktory sie tu robi, i ustawia cel na animala ktory jest klikniety
-    //metoda ktora zwraca z animalfollowera ten gui
-    //i w redrawr aktualizacja danych i wyswietlania w followerze
+    private int displayWidth = 240;
+    private int displayHeight = 190;
+    private String borderWidth = "1";
 
     public MapGui(SimulationEngine simulationEngine) {
         this.simulationEngine = simulationEngine;
         animalFollower = new AnimalFollower(simulationEngine);
         this.map = simulationEngine.getMap();
+        if (SimulationData.width >= 20 || SimulationData.height>= 20){
+            borderWidth = "0";
+        }
         grid = setUpGrid();
         if (map.isWrapped()){
             title.setText("Wrapped map"+(map.isMagical()?", magical variant, used: 0/3":""));
@@ -34,7 +37,7 @@ public class MapGui {
         else{
             title.setText("Solid map"+(map.isMagical()?", magical variant, used: 0/3":""));
         }
-    }//TODO na posdtawie wielkosci mapy wielkosc gui
+    }
 
     private GridPane setUpGrid(){
         GridPane grid = new GridPane();
@@ -45,11 +48,11 @@ public class MapGui {
                 int finalX = x;
                 int finalY = y;
                 button.setOnAction(e->animalSelected(new Vector2d(finalX, finalY)));
-                button.setMinWidth(30);
-                button.setMaxWidth(30);
-                button.setMinHeight(30);
-                button.setMaxHeight(30);
-                button.setStyle("-fx-background-color: #ffffff;-fx-border-color: #000000; -fx-border-width: 1px;");
+                button.setMinWidth((double)displayWidth/(map.getDimension().x+1));
+                button.setMaxWidth((double)displayWidth/(map.getDimension().x+1));
+                button.setMinHeight((double)displayHeight/(map.getDimension().y+1));
+                button.setMaxHeight((double)displayHeight/(map.getDimension().y+1));
+                button.setStyle(String.format("-fx-background-color: #ffffff;-fx-border-color: #000000; -fx-border-width: %spx;",borderWidth));
                 grid.add(button,x,map.getDimension().y-y,1,1);
             }
         }
@@ -104,7 +107,7 @@ public class MapGui {
                 if (map.isJungle(new Vector2d(x,y))){
                     borderColour = "FFA500";
                 }
-                button.setStyle(String.format("-fx-background-color: rgb(%s,%s,%s);-fx-border-color: #%s; -fx-border-width: 1px;", (int)(backgroundColour.getRed()*255),(int)(backgroundColour.getGreen()*255),(int)(backgroundColour.getBlue()*255), borderColour));
+                button.setStyle(String.format("-fx-background-color: rgb(%s,%s,%s);-fx-border-color: #%s; -fx-border-width: %spx;", (int)(backgroundColour.getRed()*255),(int)(backgroundColour.getGreen()*255),(int)(backgroundColour.getBlue()*255), borderColour,borderWidth));
             }
         }
         if (map.isMagical()){
@@ -125,7 +128,7 @@ public class MapGui {
     public void highlightPositions(ArrayList<Vector2d> positions){
         for (Vector2d position : positions) {
             if ( getButtonAt(position) != null)
-                getButtonAt(position.x,map.getDimension().y-position.y).setStyle("-fx-background-color: #0000FF;-fx-border-color: #000000; -fx-border-width: 1px;");
+                getButtonAt(position.x,map.getDimension().y-position.y).setStyle("-fx-background-color: #0000FF;-fx-border-color: #000000; -fx-border-width: 0px;");
         }
     }
 
