@@ -30,7 +30,6 @@ public class Animal {
 
     private boolean isAlive = true;
 
-    //POZYCJA MA BYC LOSOWA DOCELOWO
     public Animal(int baseEnergy, Vector2d position,Map map) {
         energy = baseEnergy;
         this.position = position;

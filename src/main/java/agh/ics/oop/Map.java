@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 
 public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwaga
     private boolean wrapped;
+    private boolean magical;
 
     public Vector2d getDimension() {
         return dimension;
@@ -13,8 +14,13 @@ public class Map implements IPositionObserver {//nazwa taka jak Map z javy, uwag
 
     private Vector2d dimension;//od (0,0) jest mapa
 
-    public Map(int x,int y,boolean wrapped) {
+    public boolean isMagical() {
+        return magical;
+    }
+
+    public Map(int x, int y, boolean wrapped, boolean magical) {
         this.wrapped = wrapped;
+        this.magical =magical;
         this.dimension = new Vector2d(x,y);
         //tmp
         findJungleBorders();

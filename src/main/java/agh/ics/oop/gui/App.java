@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -39,7 +40,7 @@ public class App extends Application implements IEpochObserver {
         System.out.println("init");
 
     }
-//TODO  wybieranie zwierzaka(calosc) | LATER magiczna(guziki w intro i implementacja)|LATER rzucanie wyjatkow zamiast sout
+//TODO magiczna(guziki w intro i implementacja) | LATER gradle | zrobienie todo w mapgui |LATER rzucanie wyjatkow zamiast sout |SOONtm posprzatanie i gotowe
     @Override
     public void start(Stage primaryStage) throws Exception {
         simScene = new Scene(root,1300,400);
@@ -53,17 +54,20 @@ public class App extends Application implements IEpochObserver {
     @Override
     public void stop() throws Exception {
         super.stop();
-        solidSimulation.stop();
-        wrappedSimulation.stop();
+        if (solidSimulation != null && wrappedSimulation!=null){
+            solidSimulation.stop();
+            wrappedSimulation.stop();
+        }
     }
 
     private void setMaps(){
-        wrappedSimulation = new SimulationEngine( new Map(SimulationData.width,SimulationData.height,true),this);
+        //TODO tutaj magical musi zalezec od checkboxa
+        wrappedSimulation = new SimulationEngine( new Map(SimulationData.width,SimulationData.height,true,SimulationData.isWrappedMagical),this);
         wrappedMapGui = new MapGui(wrappedSimulation);
         wrappedSimThread =  new Thread((Runnable) wrappedSimulation);
         leftMapChart = new Chart(wrappedSimulation,"Wrapped Simulation Chart");
 
-        solidSimulation = new SimulationEngine(new Map(SimulationData.width,SimulationData.height,false),this);
+        solidSimulation = new SimulationEngine(new Map(SimulationData.width,SimulationData.height,false,SimulationData.isSolidMagical),this);
         solidMapGui = new MapGui(solidSimulation);
         solidSimThread =  new Thread((Runnable) solidSimulation);
         rightMapChart = new Chart(solidSimulation,"Solid Simulation Chart");
@@ -122,6 +126,9 @@ public class App extends Application implements IEpochObserver {
         epochInterval.setText(String.valueOf(SimulationData.epochInterval));
         TextField startingAnimals = new TextField ();
         startingAnimals.setText(String.valueOf(SimulationData.startingAnimals));
+        CheckBox isWrappedMagical = new CheckBox();
+        CheckBox isSolidMagical = new CheckBox();
+//
 
         GridPane grid = new GridPane();
 
@@ -134,6 +141,8 @@ public class App extends Application implements IEpochObserver {
                     System.out.println(((TextField) child).getText());
                 }
             }
+            SimulationData.isWrappedMagical =  isWrappedMagical.isSelected();
+            SimulationData.isSolidMagical =  isSolidMagical.isSelected();
             SimulationData.setInitialValues(initialValues);
             setMaps();
 
@@ -166,7 +175,11 @@ public class App extends Application implements IEpochObserver {
         grid.add(epochInterval, 1, 8);
         grid.add(new Label("startingAnimals: "), 0, 9);
         grid.add(startingAnimals, 1, 9);
-        grid.add(startButton, 1, 10);
+        grid.add(new Label("isWrappedMagical: "), 0, 10);
+        grid.add(isWrappedMagical, 1, 10);
+        grid.add(new Label("isSolidMagical: "), 0, 11);
+        grid.add(isSolidMagical, 1, 11);
+        grid.add(startButton, 1, 12);
 
 
 //        VBox root = new VBox(5);

@@ -1,14 +1,10 @@
 package agh.ics.oop.gui;
 
 import agh.ics.oop.*;
-import com.sun.scenario.animation.shared.AnimationAccessor;
-import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
@@ -19,6 +15,10 @@ public class MapGui {
     private Map map;
     private GridPane grid;
     private AnimalFollower animalFollower;
+    private Label title = new Label("Normal map");
+    private int magicCooldown = 0;
+    private int lastMana = 0;
+    private int notificationDuration = 2000;//[ms]
     //animalfollower ktory sie tu robi, i ustawia cel na animala ktory jest klikniety
     //metoda ktora zwraca z animalfollowera ten gui
     //i w redrawr aktualizacja danych i wyswietlania w followerze
@@ -28,6 +28,12 @@ public class MapGui {
         animalFollower = new AnimalFollower(simulationEngine);
         this.map = simulationEngine.getMap();
         grid = setUpGrid();
+        if (map.isWrapped()){
+            title.setText("Wrapped map"+(map.isMagical()?", magical variant, used: 0/3":""));
+        }
+        else{
+            title.setText("Solid map"+(map.isMagical()?", magical variant, used: 0/3":""));
+        }
     }//TODO na posdtawie wielkosci mapy wielkosc gui
 
     private GridPane setUpGrid(){
@@ -101,6 +107,18 @@ public class MapGui {
                 button.setStyle(String.format("-fx-background-color: rgb(%s,%s,%s);-fx-border-color: #%s; -fx-border-width: 1px;", (int)(backgroundColour.getRed()*255),(int)(backgroundColour.getGreen()*255),(int)(backgroundColour.getBlue()*255), borderColour));
             }
         }
+        if (map.isMagical()){
+            title.setStyle(("-fx-background-color: #f8f4f4;"));
+            title.setText(title.getText().substring(0, title.getText().length() - 3)+simulationEngine.getUsedMana()+"/3");
+            if (lastMana!= simulationEngine.getUsedMana()){
+                lastMana = simulationEngine.getUsedMana();
+                magicCooldown = notificationDuration/SimulationData.epochInterval;
+            }
+            if (magicCooldown>0){
+                title.setStyle(("-fx-background-color: #B0E0E6;"));
+                magicCooldown--;
+            }
+        }
         animalFollower.redraw();
     }
 
@@ -116,6 +134,8 @@ public class MapGui {
     }
 
     public Node getRoot(){
-        return grid;
+        VBox root = new VBox(5);
+        root.getChildren().addAll(title,grid);
+        return root;
     }
 }

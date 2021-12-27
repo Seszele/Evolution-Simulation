@@ -78,4 +78,12 @@ public class Genome {
     public int hashCode() {
         return Arrays.hashCode(genes);
     }
+
+    public Genome clone(){
+        int[] copiedArray = new int[32];
+        System.arraycopy(genes, 0, copiedArray, 0, 32);
+        Genome result = new Genome();
+        result.setGenes(copiedArray);
+        return result;
+    }
 }

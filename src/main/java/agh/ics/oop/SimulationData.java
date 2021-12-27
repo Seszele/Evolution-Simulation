@@ -14,6 +14,9 @@ public class SimulationData {
     public static int epochInterval = 300;
     public static int startingAnimals = 3;
 
+    public static boolean isWrappedMagical = false;
+    public static boolean isSolidMagical = false;
+
     public static void setInitialValues(ArrayList<Integer> initialValues){
         width = initialValues.get(0);
         height = initialValues.get(1);

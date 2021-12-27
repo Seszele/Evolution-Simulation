@@ -8,12 +8,13 @@ public class SimulationEngine implements Runnable {
     private volatile boolean running = true;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
-    Map map;
+    private Map map;
 
     private EpochHistorian epochHistorian;
     private ArrayList<IEpochObserver> epochObservers = new ArrayList<>();
     private Integer epochCount = 0;
     private LifeStatistics lifeStatistics = new LifeStatistics();
+    private int usedMana = 0;
 
     public SimulationEngine(Map map,IEpochObserver observer) {
         this.map = map;
@@ -58,8 +59,19 @@ public class SimulationEngine implements Runnable {
             growPlants();
             epochCount++;
             notifyObservers();
+            if (map.isMagical() && map.getAnimals().size()==5 && usedMana <=3){
+                usedMana++;
+                spawnMagicalBeings();
+            }
         }
 
+    }
+
+    private void spawnMagicalBeings() {
+        ArrayList<Animal> copyLiving = new ArrayList<>(map.getAnimals());
+        for (Animal animal : copyLiving) {
+            new Animal(SimulationData.startEnergy,Random.getVector(map.getDimension().x,map.getDimension().y),map,animal.getGenome().clone());
+        }
     }
 
     public void feedClusters(){
@@ -212,7 +224,9 @@ public class SimulationEngine implements Runnable {
         Genome dominant = genomeHashMap.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
         return  dominant;
     }
-
+    public int getUsedMana() {
+        return usedMana;
+    }
     public ArrayList<Vector2d> getPosOfDominants(){
         Genome dominant = getGenomeDominant();
         ArrayList<Vector2d> result = new ArrayList<>();
