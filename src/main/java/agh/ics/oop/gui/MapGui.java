@@ -11,16 +11,13 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 
 public class MapGui {
-    private SimulationEngine simulationEngine;
-    private Map map;
-    private GridPane grid;
-    private AnimalFollower animalFollower;
-    private Label title = new Label("Normal map");
+    private final SimulationEngine simulationEngine;
+    private final Map map;
+    private final GridPane grid;
+    private final AnimalFollower animalFollower;
+    private final Label title = new Label("Normal map");
     private int magicCooldown = 0;
     private int lastMana = 0;
-    private int notificationDuration = 2000;//[ms]
-    private int displayWidth = 240;
-    private int displayHeight = 190;
     private String borderWidth = "1";
 
     public MapGui(SimulationEngine simulationEngine) {
@@ -43,15 +40,16 @@ public class MapGui {
         GridPane grid = new GridPane();
         for (int y = 0; y <= map.getDimension().y; y++) {
             for (int x = 0; x <= map.getDimension().x; x++) {
-//                Label label = new Label(x+","+y);
                 Button button = new Button();
                 int finalX = x;
                 int finalY = y;
                 button.setOnAction(e->animalSelected(new Vector2d(finalX, finalY)));
-                button.setMinWidth((double)displayWidth/(map.getDimension().x+1));
-                button.setMaxWidth((double)displayWidth/(map.getDimension().x+1));
-                button.setMinHeight((double)displayHeight/(map.getDimension().y+1));
-                button.setMaxHeight((double)displayHeight/(map.getDimension().y+1));
+                int displayWidth = 240;
+                button.setMinWidth((double) displayWidth /(map.getDimension().x+1));
+                button.setMaxWidth((double) displayWidth /(map.getDimension().x+1));
+                int displayHeight = 190;
+                button.setMinHeight((double) displayHeight /(map.getDimension().y+1));
+                button.setMaxHeight((double) displayHeight /(map.getDimension().y+1));
                 button.setStyle(String.format("-fx-background-color: #ffffff;-fx-border-color: #000000; -fx-border-width: %spx;",borderWidth));
                 grid.add(button,x,map.getDimension().y-y,1,1);
             }
@@ -61,12 +59,10 @@ public class MapGui {
     }
 
     private void animalSelected(Vector2d position) {
-        if (map.getObjectAt(position) instanceof Animal){
-            Animal selectedAnimal = (Animal) map.getObjectAt(position);
+        if (map.getObjectAt(position) instanceof Animal selectedAnimal){
             animalFollower.follow(selectedAnimal);
         }
     }
-
 
     private Button getButtonAt(int x, int y) {
         for (Node node : grid.getChildren()) {
@@ -86,10 +82,6 @@ public class MapGui {
     }
 
     public void redraw(){
-        //wszystkie buttony na defaultowy kolor i bez eventow
-        //pokoloruj buttony na dobry kolor zielony czarsny-szary
-        //pokoloruj bordery na kolory w zaleznosci czy jest jungla czy nie
-        //pamietaj zeby zamienic na: map.getDimension().y-y
         for (int y = 0; y <= map.getDimension().y; y++) {
             for (int x = 0; x <= map.getDimension().x; x++) {
                 Button button = getButtonAt(x,map.getDimension().y-y);
@@ -115,7 +107,9 @@ public class MapGui {
             title.setText(title.getText().substring(0, title.getText().length() - 3)+simulationEngine.getUsedMana()+"/3");
             if (lastMana!= simulationEngine.getUsedMana()){
                 lastMana = simulationEngine.getUsedMana();
-                magicCooldown = notificationDuration/SimulationData.epochInterval;
+                //[ms]
+                int notificationDuration = 2000;
+                magicCooldown = notificationDuration /SimulationData.epochInterval;
             }
             if (magicCooldown>0){
                 title.setStyle(("-fx-background-color: #B0E0E6;"));

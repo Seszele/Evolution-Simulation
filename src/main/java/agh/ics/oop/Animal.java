@@ -6,19 +6,16 @@ import java.util.ArrayList;
 
 public class Animal {
     private Vector2d position;
-    private MapDirection orientation = MapDirection.NORTH;
+    private MapDirection orientation;
     private int energy;
     private Genome genome = new Genome();
-    private Map map;
-    private ArrayList<IPositionObserver> positionObservers = new ArrayList<>();
-
-    public ArrayList<Animal> getChildList() {
-        return childList;
-    }
-
-    private ArrayList<Animal> childList = new ArrayList<>();
-    AnimalFollower follower;
+    private final Map map;
+    private final ArrayList<IPositionObserver> positionObservers = new ArrayList<>();
+    private final ArrayList<Animal> childList = new ArrayList<>();
+    private AnimalFollower follower;
     private int daysLived =0;
+    private boolean isAlive = true;
+
 
     public boolean isAlive() {
         return isAlive;
@@ -27,8 +24,6 @@ public class Animal {
     public void setAlive(boolean alive) {
         isAlive = alive;
     }
-
-    private boolean isAlive = true;
 
     public Animal(int baseEnergy, Vector2d position,Map map) {
         energy = baseEnergy;
@@ -49,6 +44,9 @@ public class Animal {
     public Genome getGenome() {
         return genome;
     }
+    public ArrayList<Animal> getChildList() {
+        return childList;
+    }
     public MapDirection getOrientation() {
         return orientation;
     }
@@ -59,9 +57,7 @@ public class Animal {
         return position.equals(this.position);
     }
 
-    //tu mozesz wywoływac zamieniajac dane na MoveDirection
     public void move(MoveDirection direction){
-//        System.out.println(this+" idzie z "+position+" "+orientation+" w: "+direction+" ENERGIA: "+energy);
         daysLived++;
         energy-= SimulationData.moveEnergy;
         switch (direction) {
@@ -69,7 +65,7 @@ public class Animal {
                 moveForward();
             }
             case BACKWARD -> {
-                //obrót i ruch
+                //rotation and movement
                 orientation = MapDirection.values()[(orientation.ordinal()+direction.ordinal())%8];
                 moveForward();
             }
@@ -80,14 +76,13 @@ public class Animal {
         }
     }
 
-    //method that contacts map and returns actual pos to move
-    private Vector2d validateDestination(Vector2d destination) {
+    //method that checks with map and returns actual pos to move
+    private Vector2d validateDestination(Vector2d destination) throws Exception {
         if (map.isWrapped() && map.posOutOfBounds(destination)){
-            //nie spradzamy chyba czy slot jest zajety czy cos
             return map.wrapPosition(destination);
         }
         if (!map.isWrapped() && map.posOutOfBounds(destination)){
-            return position;//nie ruszamy sie (traci kolejke)
+            return position;//doesn't move, loses turn
         }
         return destination;
     }
@@ -95,16 +90,22 @@ public class Animal {
     //moves forward one tile and notifies observers
     private void moveForward(){
         Vector2d destination = position.add(orientation.toVector());
-        destination = validateDestination(destination);
+        try {
+            destination = validateDestination(destination);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (!position.equals(destination))
         {
             Vector2d oldPos = position;
-//            System.out.println("oldPos"+oldPos);
             position = destination;
-//            System.out.println("oldPos"+oldPos);
 
             for (IPositionObserver observer : positionObservers) {
-                observer.positionChanged(oldPos,destination,this);
+                try {
+                    observer.positionChanged(oldPos,destination,this);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 

@@ -2,18 +2,18 @@ package agh.ics.oop;
 
 import java.util.*;
 
-import static java.lang.Math.floor;
-
 public class SimulationEngine implements Runnable {
     private volatile boolean running = true;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
-    private Map map;
+    private final Map map;
 
-    private EpochHistorian epochHistorian;
-    private ArrayList<IEpochObserver> epochObservers = new ArrayList<>();
+    private final EpochHistorian epochHistorian;
+    private final ArrayList<IEpochObserver> epochObservers = new ArrayList<>();
     private Integer epochCount = 0;
+    //statistics of dead animals from the simulation
     private LifeStatistics lifeStatistics = new LifeStatistics();
+    //how many times was magic map ability used
     private int usedMana = 0;
 
     public SimulationEngine(Map map,IEpochObserver observer) {
@@ -30,19 +30,18 @@ public class SimulationEngine implements Runnable {
     public void run(){
         while(true){
             synchronized (pauseLock) {
-                if (!running) { // may have changed while waiting to
-                    // synchronize on pauseLock
+                if (!running) {
                     break;
                 }
                 if (paused) {
                     try {
                         synchronized (pauseLock) {
-                            pauseLock.wait(); // will cause this Thread to block until
+                            pauseLock.wait();
                         }
                     } catch (InterruptedException ex) {
                         break;
                     }
-                    if (!running) { // running might have changed since we paused
+                    if (!running) {
                         break;
                     }
                 }
@@ -53,8 +52,8 @@ public class SimulationEngine implements Runnable {
                 e.printStackTrace();
             }
             removeDeadAnimals();
+            //there is no more animals to move, end simulation
             if (getAnimalCount()==0){
-                System.out.println("KONIEC | SIMENGINE");
                 stop();
                 break;
             }
@@ -75,25 +74,32 @@ public class SimulationEngine implements Runnable {
     private void spawnMagicalBeings() {
         ArrayList<Animal> copyLiving = new ArrayList<>(map.getAnimals());
         for (Animal animal : copyLiving) {
-            new Animal(SimulationData.startEnergy,Random.getVector(map.getDimension().x,map.getDimension().y),map,animal.getGenome().clone());
+            new Animal(SimulationData.startEnergy,Random.getVector(map.getDimension().x,map.getDimension().y),map,animal.getGenome().cloneGenome());
         }
     }
 
     public void feedClusters(){
         for (AnimalCluster cluster : map.getHungryClusters()) {
-            cluster.feed();
+            try {
+                cluster.feed();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void reproduce(){
         for (AnimalCluster cluster : map.getClusters()) {
             if (cluster.size() >= 2){
-                cluster.reproduce();
+                try {
+                    cluster.reproduce();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    //UWAGA nie mozesz ruszac zwierzetami z clusterow, potrzebujesz to robic z listy zwierzakow np
     public void moveAnimals(){
         for (Animal animal : map.getAnimals()) {
             animal.geneticMove();
@@ -101,7 +107,6 @@ public class SimulationEngine implements Runnable {
     }
 
     public void growPlants(){
-        //normal plant
         growPlant(false);
         growPlant(true);
 
@@ -117,11 +122,11 @@ public class SimulationEngine implements Runnable {
         }
     }
 
-    private boolean growPlant(boolean isJunglePlant){
+    //grows 1 plant in jungle or on normal terrain
+    private void growPlant(boolean isJunglePlant){
         Set<Vector2d> alreadyDrawn = new HashSet<>();
         for (int y = 0; y <= map.getDimension().y; y++) {
             for (int x = 0; x <= map.getDimension().x; x++) {
-                //musze zdrwawowac ktory nie byl zdrawowany
                 Vector2d draw = Random.getVector(map.getDimension().x,map.getDimension().y);
                 while(alreadyDrawn.contains(draw)){
                     draw = Random.getVector(map.getDimension().x,map.getDimension().y);
@@ -131,40 +136,33 @@ public class SimulationEngine implements Runnable {
                     if (map.isJungle(draw) && !map.isOccupied(draw)){
                         //place
                         map.placePlant(draw);
-//                        System.out.println("klade trawsko w dzungli");
-                        return true;
+                        return;
                     }
                 }
                 else{
                     if (!map.isJungle(draw) && !map.isOccupied(draw)){
                         //place
                         map.placePlant(draw);
-//                        System.out.println("klade trawsko normalne");
-                        return true;
+                        return;
                     }
                 }
             }
         }
-//        System.out.println("nie udalo sie postwic trawy!(pewnie jest pelna mapa) | SimulationEngine");
-        return false;
     }
+
     public void stop() {
         running = false;
-        // you might also want to interrupt() the Thread that is
-        // running this Runnable, too, or perhaps call:
         resume();
-        // to unblock
     }
 
     public void pause() {
-        // you may want to throw an IllegalStateException if !running
         paused = true;
     }
 
     public void resume() {
         synchronized (pauseLock) {
             paused = false;
-            pauseLock.notifyAll(); // Unblocks thread
+            pauseLock.notifyAll();
         }
     }
 
@@ -226,8 +224,7 @@ public class SimulationEngine implements Runnable {
             genomeHashMap.put(genome,Collections.frequency(genomes,genome));
         }
 
-        Genome dominant = genomeHashMap.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
-        return  dominant;
+        return genomeHashMap.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
     }
     public int getUsedMana() {
         return usedMana;

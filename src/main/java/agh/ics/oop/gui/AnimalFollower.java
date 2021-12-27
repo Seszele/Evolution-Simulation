@@ -9,12 +9,12 @@ import java.util.*;
 
 
 public class AnimalFollower {
-    private VBox vBox = new VBox(2);
-    private Label genomeLabel;
-    private Label childLabel;
-    private Label descendantLabel;
-    private Label diedLabel;
-    private SimulationEngine simulationEngine;
+    private final VBox vBox = new VBox(2);
+    private final Label genomeLabel;
+    private final Label childLabel;
+    private final Label descendantLabel;
+    private final Label diedLabel;
+    private final SimulationEngine simulationEngine;
     private Animal animal;
     private ArrayList<Animal> children = new ArrayList<>();
     private boolean died = false;
@@ -33,7 +33,6 @@ public class AnimalFollower {
             return "not selected";
         }
         if (!animal.isAlive()){
-            //ta ktora jest teraz - fayslived
             died = true;
             return String.valueOf(simulationEngine.getEpochCount());
         }
@@ -49,13 +48,11 @@ public class AnimalFollower {
         for (Animal child : children) {
             result += bfs(child,visited);
         }
-//        return String.valueOf(bfs(animal)-1);
         return String.valueOf(result);
     }
 
     public int bfs(Animal startNode,Set<Animal> visited) {
         Queue<Animal> queue = new LinkedList<>();
-//        Set<Animal> visited = new HashSet<>();
 
         queue.add(startNode);
         visited.add(startNode);

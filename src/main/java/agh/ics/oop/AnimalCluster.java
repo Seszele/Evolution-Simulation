@@ -3,22 +3,21 @@ package agh.ics.oop;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 
 import static java.lang.Math.floor;
 
-//w mapie wszystkie zwierzaki
-//w mapie hashmapa z clusterami
-//jak sie zwierze rusza to patrzy czy jest cluster a jak nie to robi go
-//na koniec mozna usunąć puste clustery
 public class AnimalCluster {
-    Map map;
-    private Vector2d position;
-    private ArrayList<Animal> animals = new ArrayList<>();
+    private final Map map;
+    private final Vector2d position;
+    private final ArrayList<Animal> animals = new ArrayList<>();
 
     public AnimalCluster(Animal animal,Map map) {
         position = animal.getPosition();
-        addAnimal(animal);
+        try {
+            addAnimal(animal);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         this.map = map;
     }
 
@@ -30,35 +29,27 @@ public class AnimalCluster {
         return position;
     }
 
-    //to nie powinno istniec w takiej formie publicznie
-    public ArrayList<Animal> getAnimals(){
-        return animals;
-    }
-
-    public boolean addAnimal(Animal animal){
+    public void addAnimal(Animal animal) throws Exception {
         if (!animal.isAt(position)) {
-            System.out.println("Chce dodac"+animal.getPosition()+"To nie jest to samo pole!! | AnimalCluster");
-            return false;
+            throw new Exception("Cannot add an Animal to a cluster, positions are different and are expected to be the same");
         }
         animals.add(animal);
-        return true;
     }
 
-    public boolean removeAnimal(Animal animal){
+    public void removeAnimal(Animal animal){
         animals.remove(animal);
-        return true;
     }
 
     public int size() {
         return animals.size();
     }
 
-    public ArrayList<Animal> getStrongest(){
+    public ArrayList<Animal> getStrongest() throws Exception {
         if (animals.size()==0){
-            System.out.println("Tu powinien byc throw | animal cluster");
+            throw new Exception("Cannot get the strongest animal, cluster size is 0 and should be >0");
         }
 
-        ArrayList result = new ArrayList<>();
+        ArrayList<Animal> result = new ArrayList<>();
         int maxEnergy = 0;
         for (Animal animal : animals) {
             maxEnergy = Math.max(maxEnergy,animal.getEnergy());
@@ -71,19 +62,18 @@ public class AnimalCluster {
         return result;
     }
 
-    public void feed(){
+    public void feed() throws Exception {
         int numOfStrongest = getStrongest().size();
         for (Animal animal : getStrongest()) {
-            animal.addEnergy((int)floor(SimulationData.plantEnergy/numOfStrongest));
+            animal.addEnergy((int)floor((double)SimulationData.plantEnergy/numOfStrongest));
         }
         map.removePlant(getPosition());
     }
 
-    public void reproduce(){
-        if (animals.size() < 2){
-            System.out.println("Za malo zwirzat do rozmnazania!!! | AnimalCluster");
-            return;
-        }
+    //select 2 strongest and let them reproduce
+    public void reproduce() throws Exception {
+        if (animals.size() < 2)
+            throw new Exception("Attempted to reproduce less then 2 animals");
         animals.sort(Comparator.comparing(Animal::getEnergy));
         Animal a1 = animals.get(animals.size()-1);
         Animal a2 = animals.get(animals.size()-2);
@@ -92,23 +82,21 @@ public class AnimalCluster {
         }
     }
 
-//usun martwe, jesli cluster zrobi sie pusty to usuwasz cluster w SimulationEngine juz a nie tu
+    //delete the weakest Animals and return their life statistics
     public LifeStatistics cullTheWeaklings() {
         int daysLived = 0;
         int died = 0;
         Iterator<Animal> i = animals.iterator();
         while (i.hasNext()) {
-            Animal animal = i.next(); // must be called before you can call i.remove()
+            Animal animal = i.next();
             if(animal.getEnergy()<SimulationData.moveEnergy){
                 daysLived += animal.getDaysLived();
                 died++;
                 animal.setAlive(false); // :(
                 map.getAnimals().remove(animal);
-//                System.out.println("usuwam zwierzaka"+animal+" na clusterze "+position);
                 i.remove();
             }
         }
-
         return new LifeStatistics(daysLived,died);
     }
 

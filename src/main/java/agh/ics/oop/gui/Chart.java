@@ -14,14 +14,14 @@ public class Chart {
     final int MAX_ENTRIES = 40;
     private final LineChart<String,Number> lineChart;
     private final Label dominantLabel;
-    private VBox resultRoot = new VBox(2);
-    private SimulationEngine simulation;
+    private final VBox resultRoot = new VBox(2);
+    private final SimulationEngine simulation;
 
-    private Series<String, Number> numOfAnimalsSeries = new Series<>();
-    private Series<String, Number> numOfPlantsSeries = new Series<>();
-    private Series<String, Number> averageEnergySeries = new Series<>();
-    private Series<String, Number> averageLifespanSeries = new Series<>();
-    private Series<String, Number> averageChildCountSeries = new Series<>();
+    private final Series<String, Number> numOfAnimalsSeries = new Series<>();
+    private final Series<String, Number> numOfPlantsSeries = new Series<>();
+    private final Series<String, Number> averageEnergySeries = new Series<>();
+    private final Series<String, Number> averageLifespanSeries = new Series<>();
+    private final Series<String, Number> averageChildCountSeries = new Series<>();
 
     public Chart(SimulationEngine simulation,String title) {
         this.simulation = simulation;
@@ -52,7 +52,6 @@ public class Chart {
         resultRoot.getChildren().addAll(dominantLabel,lineChart);
     }
 
-    int z =  5;
     public void redraw(){
         try{
             dominantLabel.setText("Dominant genome: "+simulation.getGenomeDominant());

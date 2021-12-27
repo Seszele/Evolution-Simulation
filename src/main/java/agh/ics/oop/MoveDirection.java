@@ -1,5 +1,5 @@
 package agh.ics.oop;
-//Nie zmieniaj kolejnosci!!
+
 public enum MoveDirection {
     FORWARD,
     ROT45,

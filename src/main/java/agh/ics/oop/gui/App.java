@@ -3,8 +3,6 @@ package agh.ics.oop.gui;
 import agh.ics.oop.*;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -25,25 +23,18 @@ public class App extends Application implements IEpochObserver {
     private Thread wrappedSimThread;
     private Chart leftMapChart;
 
-    private Scene simScene;
-    private HBox root = new HBox(50);
+    private final HBox root = new HBox(50);
 
     private MapGui solidMapGui;
     private SimulationEngine solidSimulation;
     private Thread solidSimThread;
     private Chart rightMapChart;
 
+//TODO    | Gradle | Posprzataj z komentarzami | moze jakas optymalizacja? | gotowe
 
-    @Override
-    public void init() throws Exception {
-        super.init();
-        System.out.println("init");
-
-    }
-//TODO    |LATER rzucanie wyjatkow zamiast sout |SOONtm posprzatanie i gotowe | LATER gradle
     @Override
     public void start(Stage primaryStage) throws Exception {
-        simScene = new Scene(root,1300,400);
+        Scene simScene = new Scene(root,1300,400);
 
         Scene introScene = getIntroScene(primaryStage,simScene);
 
@@ -61,6 +52,7 @@ public class App extends Application implements IEpochObserver {
     }
 
     private void setMaps(){
+        //setup simulation threads and guis
         wrappedSimulation = new SimulationEngine( new Map(SimulationData.width,SimulationData.height,true,SimulationData.isWrappedMagical),this);
         wrappedMapGui = new MapGui(wrappedSimulation);
         wrappedSimThread =  new Thread((Runnable) wrappedSimulation);
@@ -71,7 +63,7 @@ public class App extends Application implements IEpochObserver {
         solidSimThread =  new Thread((Runnable) solidSimulation);
         rightMapChart = new Chart(solidSimulation,"Solid Simulation Chart");
 
-
+        //add buttons
         Button leftSave = new Button("Save to CSV");
         leftSave.setDisable(true);
         leftSave.setOnAction(e -> wrappedSimulation.saveToCSV());
@@ -82,8 +74,6 @@ public class App extends Application implements IEpochObserver {
         leftButton.setOnAction(e -> toggleSimulation(wrappedSimulation,leftSave,leftShow));
         HBox leftMapButtons = new HBox(1);
         leftMapButtons.getChildren().addAll(leftButton,leftSave,leftShow);
-
-
 
         Button rightSave = new Button("Save to CSV");
         rightSave.setDisable(true);
@@ -127,7 +117,6 @@ public class App extends Application implements IEpochObserver {
         startingAnimals.setText(String.valueOf(SimulationData.startingAnimals));
         CheckBox isWrappedMagical = new CheckBox();
         CheckBox isSolidMagical = new CheckBox();
-//
 
         GridPane grid = new GridPane();
 
@@ -144,7 +133,6 @@ public class App extends Application implements IEpochObserver {
             SimulationData.isSolidMagical =  isSolidMagical.isSelected();
             SimulationData.setInitialValues(initialValues);
             setMaps();
-
 
             primaryStage.setScene(simScene);
             wrappedSimThread.start();
@@ -180,12 +168,10 @@ public class App extends Application implements IEpochObserver {
         grid.add(isSolidMagical, 1, 11);
         grid.add(startButton, 1, 12);
 
-
-//        VBox root = new VBox(5);
-//        root.getChildren().addAll(grid);
         return new Scene(grid,600,400);
     }
 
+    //pauses and unpauses the simulation
     private void toggleSimulation(SimulationEngine simulationEngine,Button saveBTN,Button selectBTN){
         if (simulationEngine.isPaused()){
             selectBTN.setDisable(true);

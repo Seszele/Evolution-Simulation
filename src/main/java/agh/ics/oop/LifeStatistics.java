@@ -1,16 +1,8 @@
 package agh.ics.oop;
 
 public class LifeStatistics {
-    public int getDaysLived() {
-        return daysLived;
-    }
-
-    public int getDied() {
-        return died;
-    }
-
-    private int daysLived;
-    private int died;
+    private final int daysLived;
+    private final int died;
 
     public LifeStatistics() {
         this.daysLived = 0;

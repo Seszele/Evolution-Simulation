@@ -1,16 +1,14 @@
 package agh.ics.oop;
-//TODO epoch historian nie statyczny i w srodku simengine powinien byc (tak lepiej)
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class EpochHistorian implements IEpochObserver{
-    private String FILE_CSV_NAME = "test.csv";
-    private List<String[]> dataEntries = new ArrayList<>();
+    private final String FILE_CSV_NAME;
+    private final List<String[]> dataEntries = new ArrayList<>();
 
     private boolean overBound = false;
     private int epoch = 0;
@@ -44,7 +42,7 @@ public class EpochHistorian implements IEpochObserver{
     }
 
     public void saveToCSV(){
-        addFinalLine();//podsumowanie
+        addFinalLine();//averages
         File csvOutputFile = new File(FILE_CSV_NAME);
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
             dataEntries.stream()
@@ -65,8 +63,7 @@ public class EpochHistorian implements IEpochObserver{
     }
 
     public String convertToCSV(String[] data) {
-        return Stream.of(data)
-                .collect(Collectors.joining(","));
+        return String.join(",", data);
     }
     private String avg(double val){
         return String.valueOf(val/epoch);

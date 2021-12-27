@@ -10,7 +10,7 @@ public enum MapDirection {
     WEST (-1,0),
     NORTHWEST (-1,1);
 
-    private Vector2d vector2d;
+    private final Vector2d vector2d;
 
     MapDirection(int x, int y) {
         vector2d = new Vector2d(x,y);
