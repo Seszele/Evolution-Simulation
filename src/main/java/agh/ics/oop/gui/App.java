@@ -126,7 +126,6 @@ public class App extends Application implements IEpochObserver {
             for (Node child : grid.getChildren()) {
                 if (child instanceof TextField){
                     initialValues.add(Integer.valueOf((((TextField) child).getText())));
-                    System.out.println(((TextField) child).getText());
                 }
             }
             SimulationData.isWrappedMagical =  isWrappedMagical.isSelected();
